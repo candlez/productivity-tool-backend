@@ -3,6 +3,7 @@
 An Express API for my Productivity Tool.
 
 ## Environment Variables
+
 1. NODE_PORT
 2. MYSQL_HOST
 3. MYSQL_PORT

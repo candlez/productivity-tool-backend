@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db";
+import { db } from "../db.js";
 
 export const testRouter = Router();
 
@@ -7,7 +7,7 @@ testRouter.get("/api/test1", async (req, res) => {
     return res.send("here is the test");
 });
 
-testRouter.get("api/test2", async (req, res) => {
+testRouter.get("/api/test2", async (req, res) => {
     let connection;
 
     try {
