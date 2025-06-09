@@ -71,5 +71,5 @@ jobs:
       name: production
     steps:
     - name: Temp
-      runs: echo "Temporary Step"
+      run: echo "Temporary Step"
 
