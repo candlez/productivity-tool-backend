@@ -62,7 +62,7 @@ jobs:
         task-definition: productivity-tool-backend
         service: productivity-tool-backend-service-rilp874x
         cluster: productivity-tool
-        image: thomasmcnamara7/productivity-tool-backend:manual
+        force-new-deployment: true
   
   deploy-prod:
     runs-on: ubuntu-latest
