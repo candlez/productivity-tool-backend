@@ -1,0 +1,6 @@
+.github/
+node_modules/
+.env
+build.sh
+README.md
+.gitignore
