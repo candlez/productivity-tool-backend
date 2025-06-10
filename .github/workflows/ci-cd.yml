@@ -61,7 +61,7 @@ jobs:
         aws-region: us-east-1
 
     - name: Update task definition
-      uses: aws=actions/amazon-ecs-render-task-definition
+      uses: aws=actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition-family: productivity-tool-backend
         container-name: backend-express
