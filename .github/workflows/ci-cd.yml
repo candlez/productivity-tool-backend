@@ -64,7 +64,7 @@ jobs:
       run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
     - name: Update task definition
-      uses: aws=actions/amazon-ecs-render-task-definition@v1
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition-family: productivity-tool-backend
         container-name: backend-express
