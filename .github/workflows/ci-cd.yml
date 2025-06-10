@@ -42,7 +42,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: thomasmcnamara7/productivity-tool-backend:$SHORT_SHA
+        tags: thomasmcnamara7/productivity-tool-backend:${{ env.SHORT_SHA }}
         platforms: linux/arm64
 
   deploy-dev:
@@ -59,13 +59,16 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
+    
+    - name: Get short SHA
+      run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
     - name: Update task definition
       uses: aws=actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition-family: productivity-tool-backend
         container-name: backend-express
-        image: thomasmcnamara7/productivity-tool-backend:$SHORT_SHA
+        image: thomasmcnamara7/productivity-tool-backend:${{ env.SHORT_SHA }}
 
     - name: Update ECS service
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
