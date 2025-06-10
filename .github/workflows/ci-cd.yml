@@ -34,12 +34,15 @@ jobs:
         username: thomasmcnamara7
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Get short SHA
+      run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
     - name: Build and push image
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        tags: thomasmcnamara7/productivity-tool-backend:prod
+        tags: thomasmcnamara7/productivity-tool-backend:$SHORT_SHA
         platforms: linux/arm64
 
   deploy-dev:
@@ -50,19 +53,26 @@ jobs:
 
     steps:
     - name: Configure AWS credentials
+      id: render-task-definition
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
+    - name: Update task definition
+      uses: aws=actions/amazon-ecs-render-task-definition
+      with:
+        task-definition-family: productivity-tool-backend
+        container-name: backend-express
+        image: thomasmcnamara7/productivity-tool-backend:$SHORT_SHA
+
     - name: Update ECS service
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: productivity-tool-backend
+        task-definition: ${{ steps.render-task-definition.outputs.task-definition }}
         service: productivity-tool-backend-service-rilp874x
         cluster: productivity-tool
-        force-new-deployment: true
   
   deploy-prod:
     runs-on: ubuntu-latest
