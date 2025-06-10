@@ -4,7 +4,7 @@ import { db } from "../db.js";
 export const testRouter = Router();
 
 testRouter.get("/api/test1", async (req, res) => {
-    return res.send("here is the test");
+    return res.send("here is the test 2");
 });
 
 testRouter.get("/api/test2", async (req, res) => {
