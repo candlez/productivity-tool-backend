@@ -74,8 +74,8 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
       with:
         task-definition: ${{ steps.render-task-definition.outputs.task-definition }}
-        service: productivity-tool-backend-service-rilp874x
-        cluster: productivity-tool
+        service: productivity-tool-backend-service-jkjrcyjv
+        cluster: productivity-tool-dev
   
   deploy-prod:
     runs-on: ubuntu-latest
@@ -95,3 +95,17 @@ jobs:
     - name: Get short SHA
       run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
+    - name: Update task definition
+      id: render-task-definition
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition-family: productivity-tool-backend
+        container-name: backend-express
+        image: thomasmcnamara7/productivity-tool-backend:${{ env.SHORT_SHA }}
+
+    - name: Update ECS service
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: ${{ steps.render-task-definition.outputs.task-definition }}
+        service: productivity-tool-backend-service-rilp874x
+        cluster: productivity-tool
