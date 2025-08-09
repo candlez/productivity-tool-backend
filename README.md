@@ -10,3 +10,4 @@ An Express API for my Productivity Tool.
 4. MYSQL_USERNAME
 5. MYSQL_PASSWORD
 6. MYSQL_DB_NAME
+7. JWT_SECRET
