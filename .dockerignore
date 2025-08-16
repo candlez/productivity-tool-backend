@@ -1,6 +1,8 @@
 .github/
 node_modules/
+dist/
 .env
 build.sh
 README.md
 .gitignore
+nodemon.json

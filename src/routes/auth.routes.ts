@@ -2,9 +2,9 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import { db } from "../db";
+import { db } from "../db.js";
 
-export const authRouter = Router();
+export const authRouter: Router = Router();
 
 /** 
  * sign up for an account
