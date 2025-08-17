@@ -16,7 +16,7 @@ const startServer = async () => {
     }
 
     server = app.listen(process.env.NODE_PORT || 1127, () => {
-        console.log(`Servers is listening on port ${process.env.NODE_PORT || 1127}...`);
+        console.log(`Server is listening on port ${process.env.NODE_PORT || 1127}...`);
     });
 }
 
