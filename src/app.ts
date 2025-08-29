@@ -2,6 +2,7 @@ import express, { type Express } from 'express';
 import cookieParser from 'cookie-parser';
 
 import { authRouter } from './routes/auth.routes.js';
+import { userRouter } from './routes/user.routes.js';
 
 export const app: Express = express();
 
@@ -14,4 +15,5 @@ app.get("/api", (req, res) => {
 })
 
 app.use(authRouter);
+app.use(userRouter);
 
