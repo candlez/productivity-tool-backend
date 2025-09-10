@@ -2,13 +2,17 @@ import type { UUID } from "crypto";
 
 
 import { UserRepository } from "../repositories/user.repo.js";
-import { toPublicUser, type HashedUser, type PublicUser,type User } from "../types/user.types.js";
+import { toPublicUser, type HashedUser, type PublicUser, type User } from "../types/user.types.js";
 import type { IDService } from "./id.service.js";
 
+/** // TODO write this documentation
+ * 
+ */
 export class UserService {
     constructor(private userRepository: UserRepository, private idServices: IDService) {}
 
     public async getAllUsers(): Promise<PublicUser[]> {
+
         const users = await this.userRepository.getAllUsers();
         return users.map(toPublicUser);
     }
@@ -33,5 +37,11 @@ export class UserService {
             lastName: user.lastName,
             email: user.email
         };
+    }
+
+
+    public async getUserByEmail(email: string): Promise<User | null> {
+
+        return await this.userRepository.getUserByEmail(email);
     }
 }

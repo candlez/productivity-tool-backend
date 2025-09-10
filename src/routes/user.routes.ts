@@ -7,9 +7,12 @@ import { type InputUser, type PublicUser } from "../types/user.types.js";
 import { inputUserSchema } from "../joi/user.schema.js";
 import { AuthService } from "../services/auth.service.js";
 import { IDService } from "../services/id.service.js";
+import { parseToken } from "../middleware/auth.mid.js";
 
 
 export const userRouter: Router = Router();
+
+userRouter.use(parseToken);
 
 // manual dependency injection
 const userRepo = new UserRepository();
@@ -18,13 +21,14 @@ const userService = new UserService(userRepo, idService);
 const authService = new AuthService(userService);
 
 // these routes will require admin access, which has not yet been implemented in the database
-userRouter.get("/api/users", async (req, res) => {
+// TODO add access tiers to the DB and whatnot
+userRouter.get("/", async (req, res) => {
     let users: PublicUser[] = await userService.getAllUsers();
     return res.send(users);
 });
 
 
-userRouter.post("/api/users", async (req, res) => {
+userRouter.post("/", async (req, res) => {
     const validation: ValidationResult<InputUser> = inputUserSchema.validate(req.body);
 
     if (validation.error) {
@@ -37,15 +41,15 @@ userRouter.post("/api/users", async (req, res) => {
 });
 
 
-userRouter.get("/api/users/:userId", (req, res) => {
+userRouter.get("/:userId", (req, res) => {
 
 });
 
 
-userRouter.put("/api/users/:userId", (req, res) => {
+userRouter.put("/:userId", (req, res) => {
 
 });
 
-userRouter.delete("/api/users/:userId", (req, res) => {
+userRouter.delete("/:userId", (req, res) => {
 
 });

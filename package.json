@@ -6,9 +6,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "serve": "nodemon",
+    "serve": "nodemon src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node -r dotenv/config dist/index.js"
   },
   "author": "Thomas McNamara",
   "license": "ISC",

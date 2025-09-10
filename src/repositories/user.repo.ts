@@ -1,17 +1,17 @@
-import { type FieldPacket, type Pool, type PoolConnection, type QueryResult, type RowDataPacket } from 'mysql2/promise';
+import { type FieldPacket, type Pool, type PoolConnection, type RowDataPacket } from 'mysql2/promise';
 
-import { toUser, uuidToBuffer, type InputUser, type User } from '../types/user.types.js';
+import { toUser, uuidToBuffer, type User } from '../types/user.types.js';
 import { db } from "../db.js";
 
-/**
+/** // TODO write this documentation
  * 
  */
 export class UserRepository {
     constructor(private mysql: Pool = db) {}
 
     public async getAllUsers(): Promise<User[]> {
-        let connection: PoolConnection = await this.mysql.getConnection();
 
+        let connection: PoolConnection = await this.mysql.getConnection();
         try {
             const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.query<RowDataPacket[]>(`SELECT * FROM users;`);
             
@@ -23,6 +23,32 @@ export class UserRepository {
             // throw new Error("test", errOpts);
 
             // not yet sure how error handling will work
+            throw error;
+        } finally {
+            if (connection) { connection.release(); }
+        }
+    }
+
+
+    public async getUserByEmail(email: string): Promise<User | null> {
+
+        let connection: PoolConnection = await this.mysql.getConnection();
+        try {
+            const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.query<RowDataPacket[]>(
+                `SELECT * FROM users WHERE email = ?;`, 
+                [email]
+            );
+
+            if (rows.length === 0) {
+                return null;
+            }
+            if (rows.length === 1) {
+                // TypeScript doesn't like this for some reason. hence the non null assertion (!)
+                return toUser(rows[0]!);
+            }
+            // TODO throw some type of error here
+            return null;
+        } catch (error) {
             throw error;
         } finally {
             if (connection) { connection.release(); }

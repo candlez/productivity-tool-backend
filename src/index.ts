@@ -2,6 +2,7 @@ import type { PoolConnection } from "mysql2/promise";
 
 import { app } from "./app.js";
 import { db } from "./db.js";
+import { environment } from "./environment.js";
 
 let server;
 
@@ -15,8 +16,8 @@ const startServer = async () => {
         process.exit(1);
     }
 
-    server = app.listen(process.env.NODE_PORT || 1127, () => {
-        console.log(`Server is listening on port ${process.env.NODE_PORT || 1127}...`);
+    server = app.listen(environment.NODE_PORT, () => {
+        console.log(`Server is listening on port ${environment.NODE_PORT}...`);
     });
 }
 

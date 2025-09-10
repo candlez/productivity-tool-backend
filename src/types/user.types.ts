@@ -19,9 +19,17 @@ export type InputUser = Pick<User, "firstName" | "lastName" | "email"> & {
 
 export type HashedUser = Pick<User, "firstName" | "lastName" | "email" | "passwordHash">;
 
+export type LoginUser = Pick<User, "email"> & {
+    password: string
+}
+
+export type JwtPayloadUser = PublicUser & {
+    iat: number,
+    exp: number
+}
+
 export const toUser = (dbUser: RowDataPacket): User => {
     return {
-        // TODO finish this
         id: bufferToUUID(dbUser.user_id),
         firstName: dbUser.first_name,
         lastName: dbUser.last_name,
