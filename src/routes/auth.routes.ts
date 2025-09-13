@@ -7,6 +7,7 @@ import { AuthService } from "../services/auth.service.js";
 import { inputUserSchema, loginUserSchema } from "../joi/user.schema.js";
 import { type InputUser, type PublicUser } from "../types/user.types.js";
 import { IDService } from "../services/id.service.js";
+import { parseToken } from "../middleware/auth.mid.js";
 
 
 export const authRouter: Router = Router();
@@ -43,25 +44,27 @@ authRouter.post("/login", async (req, res) => {
     }
 
     const [token, user]: [string, PublicUser] = await authService.login(validation.value);
-    res.cookie(AuthService.TOKEN_NAME, token, { httpOnly: true, maxAge: AuthService.MAX_AGE * 1000 }) // 3 days in milliseconds
+    res.cookie(AuthService.TOKEN_NAME, token, { httpOnly: true, maxAge: AuthService.MAX_AGE * 1000 }); // 3 days in milliseconds
 
-    return res.json(user)
+    return res.json(user);
 });
 
 
-// these two routes need to be protected
+// these routes need to be protected
 
 /**
  * return user profile
  */
-authRouter.get("/me", (req, res) => {
-
+authRouter.get("/me", parseToken, (req, res) => {
+    return res.json(req.user);
 });
 
 /**
  * delete user profile
  */
-authRouter.delete("/me", (req, res) => {
+authRouter.delete("/me", parseToken, async (req, res) => {
+    await userService.deleteUser(req.user!.id);
 
+    return res.status(204);
 });
 

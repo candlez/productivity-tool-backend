@@ -44,4 +44,10 @@ export class UserService {
 
         return await this.userRepository.getUserByEmail(email);
     }
+
+
+    public async deleteUser(id: UUID): Promise<any> {
+
+        return await this.userRepository.deleteUser(id);
+    }
 }

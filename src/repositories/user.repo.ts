@@ -1,4 +1,5 @@
 import { type FieldPacket, type Pool, type PoolConnection, type RowDataPacket } from 'mysql2/promise';
+import type { UUID } from 'crypto';
 
 import { toUser, uuidToBuffer, type User } from '../types/user.types.js';
 import { db } from "../db.js";
@@ -64,6 +65,25 @@ export class UserRepository {
                 `INSERT INTO users (user_id, first_name, last_name, email, pw_hash, created_at)
                  VALUES (?, ?, ?, ?, ?, ?);`,
                 [uuidToBuffer(user.id), user.firstName, user.lastName, user.email, user.passwordHash, user.createdAt]
+            );
+
+            return true;
+        } catch (error) {
+            throw error;
+        } finally {
+            if (connection) { connection.release(); }
+        }
+    }
+
+
+    public async deleteUser(id: UUID): Promise<any> {
+        let connection: PoolConnection = await this.mysql.getConnection();
+
+        try {
+            await connection.query(
+                `DELETE FROM users
+                 WHERE user_id = ?;`,
+                [id]
             );
 
             return true;
