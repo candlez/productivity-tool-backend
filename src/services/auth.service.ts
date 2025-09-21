@@ -6,7 +6,8 @@ import { type UserService } from "./user.service.js";
 import { environment } from "../environment.js"; 
 
 /**
- * // TODO write this documentation
+ * Service class for authentication functionality such as generating tokens
+ * and hashing passwords
  */
 export class AuthService {
     public static readonly MAX_AGE = 3 * 24 * 60 * 60; // 3 days in seconds
@@ -15,7 +16,7 @@ export class AuthService {
 
     constructor(private userService: UserService) {}
 
-    public async signup(inputUser: InputUser): Promise<PublicUser> {
+    public async hashUser(inputUser: InputUser): Promise<HashedUser> {
 
         const salt: string = await bcrypt.genSalt();
         const passwordHash: string = await bcrypt.hash(inputUser.password, salt);
@@ -26,8 +27,22 @@ export class AuthService {
             email: inputUser.email,
             passwordHash
         }
-        return await this.userService.createUser(hashedUser);
+        return hashedUser;
     }
+
+
+    public async signup(inputUser: InputUser): Promise<PublicUser> {
+
+        const hashedUser: HashedUser = await this.hashUser(inputUser);
+        const user: User = await this.userService.createUser(hashedUser);
+        return toPublicUser(user);
+    }
+
+
+    public generateToken(publicUser: PublicUser): string {
+        // I believe the default algorithm is HS256
+        return jwt.sign(publicUser, environment.JWT_SECRET, { expiresIn: AuthService.MAX_AGE });
+    } 
 
 
     public async login(loginUser: LoginUser): Promise<[string, PublicUser]> {
@@ -45,8 +60,8 @@ export class AuthService {
         }
 
         const publicUser: PublicUser = toPublicUser(user);
-        // I believe the default algorithm is HS256
-        const token: string = jwt.sign(publicUser, environment.JWT_SECRET, { expiresIn: AuthService.MAX_AGE });
+
+        const token = this.generateToken(publicUser);
 
         return [token, publicUser];
     }

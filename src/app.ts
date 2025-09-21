@@ -14,6 +14,6 @@ app.get("/api", (req, res) => {
     return res.status(200).send();
 })
 
-app.use("/api/auth", authRouter);
-app.use("/api/users", userRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
 

@@ -28,6 +28,8 @@ export type JwtPayloadUser = PublicUser & {
     exp: number
 }
 
+export type PredicateUser = Partial<User>;
+
 export const toUser = (dbUser: RowDataPacket): User => {
     return {
         id: bufferToUUID(dbUser.user_id),

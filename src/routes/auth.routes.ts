@@ -49,6 +49,8 @@ authRouter.post("/login", async (req, res) => {
     return res.json(user);
 });
 
+// TODO eventually, there needs to be a way to reset your password
+
 
 // these routes need to be protected
 
