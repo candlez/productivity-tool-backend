@@ -8,6 +8,8 @@ import { inputUserSchema, loginUserSchema } from "../joi/user.schema.js";
 import { type InputUser, type PublicUser } from "../types/user.types.js";
 import { IDService } from "../services/id.service.js";
 import { parseToken } from "../middleware/auth.mid.js";
+import { sendDeleted, sendOneItem } from "../util/rest.util.js";
+import { JoiValidationError } from "../types/error.types.js";
 
 
 export const authRouter: Router = Router();
@@ -25,11 +27,11 @@ authRouter.post("/signup", async (req, res) => {
     const validation: ValidationResult<InputUser> = inputUserSchema.validate(req.body);
 
     if (validation.error) {
-        return res.status(400).json(validation.error);
+        throw new JoiValidationError("Server encountered invalid data", validation.error.details);
     }
 
     let user: PublicUser = await authService.signup(validation.value);
-    return res.json(user);
+    return sendOneItem<PublicUser>(res, user, user.id);
 });
 
 /**
@@ -40,13 +42,13 @@ authRouter.post("/login", async (req, res) => {
     const validation: ValidationResult = loginUserSchema.validate(req.body);
 
     if (validation.error) {
-        return res.status(400).json(validation.error);
+        throw new JoiValidationError("Server encountered invalid data", validation.error.details);
     }
 
     const [token, user]: [string, PublicUser] = await authService.login(validation.value);
     res.cookie(AuthService.TOKEN_NAME, token, { httpOnly: true, maxAge: AuthService.MAX_AGE * 1000 }); // 3 days in milliseconds
 
-    return res.json(user);
+    return sendOneItem<PublicUser>(res, user, user.id)
 });
 
 // TODO eventually, there needs to be a way to reset your password
@@ -54,19 +56,21 @@ authRouter.post("/login", async (req, res) => {
 
 // these routes need to be protected
 
+authRouter.use(parseToken);
+
 /**
  * return user profile
  */
-authRouter.get("/me", parseToken, (req, res) => {
-    return res.json(req.user);
+authRouter.get("/me", (req, res) => {
+    return sendOneItem<PublicUser>(res, req.user!, req.user!.id)
 });
 
 /**
  * delete user profile
  */
-authRouter.delete("/me", parseToken, async (req, res) => {
+authRouter.delete("/me", async (req, res) => {
     await userService.deleteUser(req.user!.id);
 
-    return res.status(204);
+    return sendDeleted(res);
 });
 

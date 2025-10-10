@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { toPublicUser, type HashedUser, type InputUser, type LoginUser, type PublicUser, type User } from "../types/user.types.js";
 import { type UserService } from "./user.service.js";
 import { environment } from "../environment.js"; 
+import { UnauthorizedError } from "../types/error.types.js";
 
 /**
  * Service class for authentication functionality such as generating tokens
@@ -49,14 +50,12 @@ export class AuthService {
 
         const user: User | null = await this.userService.getUserByEmail(loginUser.email);
         if (user === null) {
-            // TODO throw error? need to return a 4xx code to user
-            throw new Error("placeholder");
+            throw new UnauthorizedError("Username or Password is incorrect");
         }
 
         const passwordMatches = await bcrypt.compare(loginUser.password, user.passwordHash);
         if (!passwordMatches) {
-            // TODO throw error? need to return a 4xx code to user
-            throw new Error("placeholder");
+            throw new UnauthorizedError("Username or Password is incorrect");
         }
 
         const publicUser: PublicUser = toPublicUser(user);

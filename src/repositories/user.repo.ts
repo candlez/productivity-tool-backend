@@ -1,11 +1,15 @@
-import { type FieldPacket, type Pool, type PoolConnection, type RowDataPacket } from 'mysql2/promise';
+import { type FieldPacket, type Pool, type PoolConnection, type ResultSetHeader, type RowDataPacket } from 'mysql2/promise';
 import type { UUID } from 'crypto';
 
-import { toUser, uuidToBuffer, type PredicateUser, type User } from '../types/user.types.js';
 import { db } from "../db.js";
 
-/** // TODO write this documentation
- * 
+import { toUser, uuidToBuffer, type PredicateUser, type User } from '../types/user.types.js';
+import { NotFoundError, ValidationError } from '../types/error.types.js';
+import { isMySQL2Error } from '../util/error.util.js';
+
+/**
+ * handles database operations on the users table
+ * should return only objects of type User as mapping is the responsibility of the caller
  */
 export class UserRepository {
     constructor(private mysql: Pool = db) {}
@@ -14,16 +18,10 @@ export class UserRepository {
 
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
-            const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.query<RowDataPacket[]>(`SELECT * FROM users;`);
+            const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(`SELECT * FROM users;`);
             
             return rows.map(toUser);
         } catch (error) {
-            // const errOpts: ErrorOptions = {
-            //     cause: error
-            // }
-            // throw new Error("test", errOpts);
-
-            // not yet sure how error handling will work
             throw error;
         } finally {
             if (connection) { connection.release(); }
@@ -35,7 +33,7 @@ export class UserRepository {
 
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
-            const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.query<RowDataPacket[]>(
+            const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(
                 `SELECT * FROM users WHERE email = ?;`, 
                 [email]
             );
@@ -47,8 +45,7 @@ export class UserRepository {
                 // typescript doesn't like this for some reason. hence the non null assertion (!)
                 return toUser(rows[0]!);
             }
-            // TODO throw some type of error here
-            return null;
+            throw new Error(`Found more than one user with email: ${email}`);
         } catch (error) {
             throw error;
         } finally {
@@ -61,7 +58,7 @@ export class UserRepository {
 
         let connection = await this.mysql.getConnection();
         try {
-            const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.query<RowDataPacket[]>(
+            const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(
                 `SELECT * FROM users WHERE user_id = ?;`, 
                 [uuidToBuffer(id)]
             );
@@ -73,8 +70,7 @@ export class UserRepository {
                 // typescript doesn't like this for some reason. hence the non null assertion (!)
                 return toUser(rows[0]!);
             }
-            // TODO throw some type of error here
-            return null;
+            throw new Error(`Found more than one user with id: ${id}`);
         } catch (error) {
             throw error;
         } finally {
@@ -87,12 +83,18 @@ export class UserRepository {
 
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
-            await connection.query(
+            await connection.execute(
                 `INSERT INTO users (user_id, first_name, last_name, email, pw_hash, created_at)
                  VALUES (?, ?, ?, ?, ?, ?);`,
                 [uuidToBuffer(user.id), user.firstName, user.lastName, user.email, user.passwordHash, user.createdAt]
             );
         } catch (error) {
+            if (isMySQL2Error(error)) {
+                switch (error.errno) {
+                    case 1062: // duplicate entry
+                        throw new ValidationError("Email is already taken", { cause: error });
+                }
+            }
             throw error;
         } finally {
             if (connection) { connection.release(); }
@@ -121,20 +123,23 @@ export class UserRepository {
             statements.push("pw_hash = ?");
         }
         if (values.length === 0) {
-            throw new Error("placeholder message");
-            // TODO standardize this
+            throw new ValidationError("No values to update.");
         }
 
         values.push(uuidToBuffer(id));
 
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
-            await connection.query(
+            const [result, fields]: [ResultSetHeader, FieldPacket[]] = await connection.execute(
                 `UPDATE users
                  SET ${statements.join(", ")}
                  WHERE user_id = ?;`,
                 values
             );
+
+            if (result.affectedRows === 0 && result.info.startsWith("Rows matched: 0")) {
+                throw new NotFoundError(`User not found [ID: ${id}]`);             
+            }
         } catch (error) {
             throw error;
         } finally {
@@ -147,11 +152,15 @@ export class UserRepository {
 
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
-            await connection.query(
+            const [result, fields]: [ResultSetHeader, FieldPacket[]] = await connection.execute(
                 `DELETE FROM users
                  WHERE user_id = ?;`,
                 [uuidToBuffer(id)]
             );
+
+            if (result.affectedRows === 0) {
+                throw new NotFoundError(`User not found [ID: ${id}]`);
+            }
         } catch (error) {
             throw error;
         } finally {

@@ -1,12 +1,11 @@
 import type { UUID } from "crypto";
 
-
 import { UserRepository } from "../repositories/user.repo.js";
-import { toPublicUser, type HashedUser, type PredicateUser, type PublicUser, type User } from "../types/user.types.js";
+import { type HashedUser, type PredicateUser, type User } from "../types/user.types.js";
 import type { IDService } from "./id.service.js";
 
-/** // TODO write this documentation
- * 
+/** 
+ * handles logic and functionality pertaining to Users
  */
 export class UserService {
     constructor(private userRepository: UserRepository, private idServices: IDService) {}
@@ -40,10 +39,6 @@ export class UserService {
      * in the future, it may become necessary to make this method more general.
      * that would involve it taking a PredicateUser as an argument and returning
      * Promise<void>
-     * 
-     * @param id 
-     * @param hashedUser 
-     * @returns 
      */
     public async updateUser(id: UUID, hashedUser: HashedUser): Promise<void> {
 
