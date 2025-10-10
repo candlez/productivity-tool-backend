@@ -1,11 +1,14 @@
+import type { PoolConnection } from "mysql2/promise";
+
 import { app } from "./app.js";
 import { db } from "./db.js";
+import { environment } from "./environment.js";
 
 let server;
 
 const startServer = async () => {
     try {
-        const connection = await db.getConnection();
+        const connection: PoolConnection = await db.getConnection();
         console.log("Connected to database");
         connection.release();
     } catch (error) {
@@ -13,8 +16,8 @@ const startServer = async () => {
         process.exit(1);
     }
 
-    server = app.listen(process.env.NODE_PORT || 9000, () => {
-        console.log(`Servers is listening on port ${process.env.NODE_PORT || 9000}...`);
+    server = app.listen(environment.NODE_PORT, () => {
+        console.log(`Server is listening on port ${environment.NODE_PORT}...`);
     });
 }
 
