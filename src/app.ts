@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 
 import { authRouter } from './routes/auth.routes.js';
 import { userRouter } from './routes/user.routes.js';
+import { themeRouter } from './routes/theme.routes.js';
 import { errorHandler, finalHandler } from './middleware/error.mid.js';
 
 export const app: Express = express();
@@ -17,6 +18,7 @@ app.get("/api", (req, res) => {
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/themes", themeRouter);
 
 app.use(errorHandler);
 app.use(finalHandler);
