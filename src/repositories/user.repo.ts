@@ -3,9 +3,10 @@ import type { UUID } from 'crypto';
 
 import { db } from "../db.js";
 
-import { toUser, uuidToBuffer, type PredicateUser, type User } from '../types/user.types.js';
+import { toUser, type PredicateUser, type User } from '../types/user.types.js';
 import { NotFoundError, ValidationError } from '../types/error.types.js';
 import { isMySQL2Error } from '../util/error.util.js';
+import { uuidToBuffer } from '../util/uuid.util.js';
 
 /**
  * handles database operations on the users table
