@@ -40,8 +40,7 @@ userRouter.post("/", async (req, res) => {
         throw new JoiValidationError("Server encountered invalid data in the request body", validation.error.details);
     }
     
-
-    let user: PublicUser = await authService.signup(validation.value);
+    const user: PublicUser = await authService.signup(validation.value);
     return sendCreated<PublicUser>(res, user, user.id);
 });
 
