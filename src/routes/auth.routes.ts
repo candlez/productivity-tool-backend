@@ -10,6 +10,7 @@ import { IDService } from "../services/id.service.js";
 import { parseToken } from "../middleware/auth.mid.js";
 import { sendDeleted, sendOneItem } from "../util/rest.util.js";
 import { JoiValidationError } from "../types/error.types.js";
+import { ContextService } from "../services/context.service.js";
 
 
 export const authRouter: Router = Router();
@@ -62,15 +63,16 @@ authRouter.use(parseToken);
  * return user profile
  */
 authRouter.get("/me", (req, res) => {
-    return sendOneItem<PublicUser>(res, req.user!, req.user!.id)
+    const user: PublicUser = ContextService.getCallingUser()!;
+    return sendOneItem<PublicUser>(res, user, user.id)
 });
 
 /**
  * delete user profile
  */
 authRouter.delete("/me", async (req, res) => {
-    await userService.deleteUser(req.user!.id);
-
+    const user: PublicUser = ContextService.getCallingUser()!;
+    await userService.deleteUser(user.id);
     return sendDeleted(res);
 });
 

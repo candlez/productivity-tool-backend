@@ -11,6 +11,7 @@ import { IDService } from "../services/id.service.js";
 import { parseToken } from "../middleware/auth.mid.js";
 import { sendArray, sendCreated, sendDeleted, sendOneItem } from "../util/rest.util.js";
 import { JoiValidationError, NotFoundError } from "../types/error.types.js";
+import { ContextService } from "../services/context.service.js";
 
 
 export const userRouter: Router = Router();
@@ -90,7 +91,7 @@ userRouter.put("/:userId", async (req, res) => { // this is for submitting whole
         email: hashedUser.email
     }
 
-    if (newUser.id === req.user!.id) {
+    if (newUser.id === ContextService.getCallingUser()!.id) {
         // we have to refresh the cookie because the user's details have changed
         const token = authService.generateToken(newUser);
         res.cookie(AuthService.TOKEN_NAME, token, { httpOnly: true, maxAge: AuthService.MAX_AGE * 1000 }); // 3 days in milliseconds
