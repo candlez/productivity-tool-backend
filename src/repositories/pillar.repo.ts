@@ -5,6 +5,8 @@ import { db } from "../db.js";
 
 import { toPillar, type Pillar } from "../types/pillar.types.js";
 import type { Predicate } from "../util/predicate.util.js";
+import { bufferToUUID, uuidToBuffer } from "../util/uuid.util.js";
+import { isMySQL2Error } from "../util/error.util.js";
 
 
 /**
@@ -40,10 +42,28 @@ export class PillarRepository {
             const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(
                 `SELECT * FROM pillars
                  WHERE user_id = ?;`,
-                [userID]
+                [uuidToBuffer(userID)]
             );
             
             return rows.map(toPillar);
+        } catch (error) {
+            throw error;
+        } finally {
+            if (connection) { connection.release(); }
+        }
+    }
+
+
+    public async insertPillar(pillar: Pillar): Promise<void> {
+        
+        const connection: PoolConnection = await this.mysql.getConnection();
+        try {
+            await connection.execute(
+                `INSERT INTO pillars (pillar_id, user_id, name, theme_id, description, max_score, active, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+                [uuidToBuffer(pillar.id), uuidToBuffer(pillar.userID), pillar.name, uuidToBuffer(pillar.themeID),
+                    pillar.description, pillar.maxScore, pillar.active, pillar.createdAt]
+            );
         } catch (error) {
             throw error;
         } finally {

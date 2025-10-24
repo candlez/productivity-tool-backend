@@ -19,6 +19,9 @@ export type PublicPillar = Pillar; // in the case that there is a need to distin
                                    // this type should be amended 
                                    // and a "toPublicPillar" function should be created
 
+export type InputPillar = Omit<Pillar, "id" | "createdAt">;
+
+
 export const toPillar = (dbPillar: RowDataPacket): Pillar => {
     return {
         id: bufferToUUID(dbPillar.pillar_id),
