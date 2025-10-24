@@ -5,8 +5,10 @@ import type { ValidationResult } from "joi";
 import { environment } from "../environment.js";
 import { AuthService } from "../services/auth.service.js";
 import { jwtPayloadSchema } from "../joi/user.schema.js";
-import type { JwtPayloadUser } from "../types/user.types.js";
+import type { JwtPayloadUser, PublicUser } from "../types/user.types.js";
 import { UnauthorizedError } from "../types/error.types.js";
+import { ContextService } from "../services/context.service.js";
+import type { RequestContext } from "../types/context.types.js";
 
 
 /**
@@ -29,13 +31,18 @@ export const parseToken: RequestHandler = (req: Request, res: Response, next: Ne
             throw new UnauthorizedError("Invalid token");
         }
 
-        req.user = {
+        const publicUser: PublicUser = {
             id: validation.value.id,
             firstName: validation.value.firstName,
             lastName: validation.value.lastName,
             email: validation.value.email
         };
-        next();
+        const ctx: RequestContext = {
+            user: publicUser
+        }
+        ContextService.runWithContext(ctx, async () => {
+            next();
+        });
     } catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {
             throw new UnauthorizedError("Invalid token", { cause: error });
