@@ -36,6 +36,7 @@ pillarRouter.post("/", async (req, res) => {
         throw new JoiValidationError("Server encountered invalid data in the request body", validation.error.details);
     }
 
+    // the Joi schema does not include the userID because that is provided by the token
     validation.value.userID = ContextService.getCallingUser()!.id;
 
     const pillar: Pillar = await pillarService.createPillar(validation.value);
