@@ -45,30 +45,30 @@ userRouter.post("/", async (req, res) => {
 });
 
 
-const pathParamSchema = Joi.object<{ userId: UUID }>({
-    userId: Joi.string().uuid().required()
+const pathParamSchema = Joi.object<{ userID: UUID }>({
+    userID: Joi.string().uuid().required()
 }).unknown(false);
 
 
-userRouter.get("/:userId", async (req, res) => {
-    const validation: ValidationResult<{ userId: UUID }> = pathParamSchema.validate(req.params);
+userRouter.get("/:userID", async (req, res) => {
+    const validation: ValidationResult<{ userID: UUID }> = pathParamSchema.validate(req.params);
 
     if (validation.error) {
         throw new JoiValidationError("Server encountered invalid data in the request parameters", validation.error.details);
     }
 
-    const user = await userService.getUserById(validation.value.userId);
+    const user = await userService.getUserById(validation.value.userID);
 
     if (user === null) {
-        throw new NotFoundError(`User not found [ID: ${validation.value.userId}]`)
+        throw new NotFoundError(`User not found [ID: ${validation.value.userID}]`)
     }
 
     return sendOneItem(res, user, user.id);
 });
 
 
-userRouter.put("/:userId", async (req, res) => { // this is for submitting whole users (InputUser)
-    const paramValidation: ValidationResult<{ userId: UUID }> = pathParamSchema.validate(req.params);
+userRouter.put("/:userID", async (req, res) => { // this is for submitting whole users (InputUser)
+    const paramValidation: ValidationResult<{ userID: UUID }> = pathParamSchema.validate(req.params);
 
     if (paramValidation.error) {
         throw new JoiValidationError("Server encountered invalid data in the request parameters", paramValidation.error.details);
@@ -81,10 +81,10 @@ userRouter.put("/:userId", async (req, res) => { // this is for submitting whole
     }
 
     const hashedUser: HashedUser = await authService.hashUser(bodyValidation.value)
-    await userService.updateUser(paramValidation.value.userId, hashedUser);
+    await userService.updateUser(paramValidation.value.userID, hashedUser);
 
     const newUser: PublicUser = {
-        id: paramValidation.value.userId,
+        id: paramValidation.value.userID,
         firstName: hashedUser.firstName,
         lastName: hashedUser.lastName,
         email: hashedUser.email
@@ -99,14 +99,14 @@ userRouter.put("/:userId", async (req, res) => { // this is for submitting whole
     return sendOneItem(res, newUser, newUser.id);
 });
 
-userRouter.delete("/:userId", async (req, res) => {
-    const validation: ValidationResult<{ userId: UUID }> = pathParamSchema.validate(req.params);
+userRouter.delete("/:userID", async (req, res) => {
+    const validation: ValidationResult<{ userID: UUID }> = pathParamSchema.validate(req.params);
 
     if (validation.error) {
         throw new JoiValidationError("Server encountered invalid data in the request parameters", validation.error.details);
     }
 
-    await userService.deleteUser(validation.value.userId);
+    await userService.deleteUser(validation.value.userID);
 
     return sendDeleted(res);
 });
