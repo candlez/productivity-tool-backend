@@ -30,7 +30,7 @@ export const toPillar = (dbPillar: RowDataPacket): Pillar => {
         themeID: bufferToUUID(dbPillar.theme_id),
         description: dbPillar.description,
         maxScore: dbPillar.max_score,
-        active: dbPillar.active,
+        active: dbPillar.active === 1,
         createdAt: dbPillar.created_at
     }
 }

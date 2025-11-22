@@ -83,7 +83,7 @@ export class PillarRepository {
                 `UPDATE pillars
                  SET ${predicate.statements.join(", ")}
                  WHERE pillar_id = ?;`,
-                [...predicate.values, pillarID]
+                [...predicate.values, uuidToBuffer(pillarID)]
             );
 
             if (result.affectedRows === 0 && result.info.startsWith("Rows matched: 0")) {

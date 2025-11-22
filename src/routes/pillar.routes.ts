@@ -78,6 +78,7 @@ pillarRouter.put("/:pillarID", async (req, res) => {
         throw new JoiValidationError("Server encountered invalid data in the request body", bodyValidation.error.details);
     }
 
+    bodyValidation.value.userID = ContextService.verifyCallingUser().id;
     const updatedPillar: Pillar = await pillarService.updatePillar(paramValidation.value.pillarID, bodyValidation.value);
     const publicPillar: PublicPillar = updatedPillar;
     return sendOneItem(res, publicPillar, publicPillar.id);
