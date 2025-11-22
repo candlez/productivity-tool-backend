@@ -1,12 +1,12 @@
-import type { FieldPacket, Pool, PoolConnection, RowDataPacket } from "mysql2/promise";
+import type { FieldPacket, Pool, PoolConnection, RowDataPacket, ResultSetHeader } from "mysql2/promise";
 import type { UUID } from "crypto";
 
 import { db } from "../db.js";
 
 import { toPillar, type Pillar } from "../types/pillar.types.js";
-import type { Predicate } from "../util/predicate.util.js";
-import { bufferToUUID, uuidToBuffer } from "../util/uuid.util.js";
-import { isMySQL2Error } from "../util/error.util.js";
+import type { UpdatePredicate, WherePredicate } from "../util/predicate.util.js";
+import { uuidToBuffer } from "../util/uuid.util.js";
+import { NotFoundError } from "../types/error.types.js";
 
 
 /**
@@ -15,7 +15,7 @@ import { isMySQL2Error } from "../util/error.util.js";
 export class PillarRepository {
     constructor(private mysql: Pool = db) {}
 
-    public async getPillars(predicate: Predicate) {
+    public async getPillars(predicate: WherePredicate) {
         
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
@@ -35,17 +35,20 @@ export class PillarRepository {
     }
 
 
-    public async getPillarsByUser(userID: UUID): Promise<Pillar[]> {
-
+    public async getOnePillar(predicate: WherePredicate) {
+        
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
             const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(
                 `SELECT * FROM pillars
-                 WHERE user_id = ?;`,
-                [uuidToBuffer(userID)]
+                 WHERE 1 = 1
+                 AND ${predicate.statements.join(" AND ")}`,
+                predicate.values
             );
-            
-            return rows.map(toPillar);
+
+            if (rows.length === 0) throw new NotFoundError(`Pillar not found [Predicate: ${predicate}]`);
+            if (rows.length === 1 && rows[0] !== undefined) return toPillar(rows[0]);
+            throw new Error(`Found more than one pillar with predicate: ${predicate}`);
         } catch (error) {
             throw error;
         } finally {
@@ -64,6 +67,49 @@ export class PillarRepository {
                 [uuidToBuffer(pillar.id), uuidToBuffer(pillar.userID), pillar.name, uuidToBuffer(pillar.themeID),
                     pillar.description, pillar.maxScore, pillar.active, pillar.createdAt]
             );
+        } catch (error) {
+            throw error;
+        } finally {
+            if (connection) { connection.release(); }
+        }
+    }
+
+
+    public async updatePillar(pillarID: UUID, predicate: UpdatePredicate): Promise<void> {
+
+        const connection: PoolConnection = await this.mysql.getConnection();
+        try {
+            const [result, fields]: [ResultSetHeader, FieldPacket[]] = await connection.execute(
+                `UPDATE pillars
+                 SET ${predicate.statements.join(", ")}
+                 WHERE pillar_id = ?;`,
+                [...predicate.values, pillarID]
+            );
+
+            if (result.affectedRows === 0 && result.info.startsWith("Rows matched: 0")) {
+                throw new NotFoundError(`Pillar not found [ID: ${pillarID}]`);             
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            if (connection) { connection.release(); }
+        }
+    }
+
+
+    public async deletePillar(pillarID: UUID): Promise<void> {
+
+        const connection: PoolConnection = await this.mysql.getConnection();
+        try {
+            const [result, fields]: [ResultSetHeader, FieldPacket[]] = await connection.execute(
+                `DELETE FROM pillars
+                 WHERE pillar_id = ?;`,
+                [uuidToBuffer(pillarID)]
+            );
+
+            if (result.affectedRows === 0) {
+                throw new NotFoundError(`Pillar not found [ID: ${pillarID}]`);
+            }
         } catch (error) {
             throw error;
         } finally {

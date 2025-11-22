@@ -1,7 +1,7 @@
 
 
 
-export class Predicate {
+export abstract class Predicate {
     public statements: string[];
     public values: any[];
 
@@ -10,6 +10,16 @@ export class Predicate {
         this.values = [];
     }
 
+    public equalTo(field: string, value: any): void {
+        this.statements.push(field + "= ?");
+        this.values.push(value);
+    }
+}
+
+export class WherePredicate extends Predicate {
+    constructor() {
+        super();
+    }
 
     public greaterThan(field: string, value: any): void {
         this.statements.push(field + "> ?");
@@ -20,9 +30,10 @@ export class Predicate {
         this.statements.push(field + "< ?");
         this.values.push(value);
     }
+}
 
-    public equalTo(field: string, value: any): void {
-        this.statements.push(field + "= ?");
-        this.values.push(value);
+export class UpdatePredicate extends Predicate {
+    constructor() {
+        super();
     }
 }
