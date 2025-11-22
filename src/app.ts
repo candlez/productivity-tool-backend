@@ -6,11 +6,13 @@ import { userRouter } from './routes/user.routes.js';
 import { themeRouter } from './routes/theme.routes.js';
 import { pillarRouter } from './routes/pillar.routes.js';
 import { errorHandler, finalHandler } from './middleware/error.mid.js';
+import { httpLogger } from './logger.js';
 
 export const app: Express = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(httpLogger);
 
 // health check
 app.get("/api", (req, res) => {
