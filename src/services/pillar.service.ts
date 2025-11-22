@@ -55,9 +55,9 @@ export class PillarService {
     public async updatePillar(pillarID: UUID, inputPillar: InputPillar): Promise<Pillar> {
 
         const predicate = new UpdatePredicate();
-        predicate.equalTo("user_id", inputPillar.userID);
+        predicate.equalTo("user_id", uuidToBuffer(inputPillar.userID));
         predicate.equalTo("name", inputPillar.name);
-        predicate.equalTo("theme_id", inputPillar.themeID);
+        predicate.equalTo("theme_id", uuidToBuffer(inputPillar.themeID));
         predicate.equalTo("description", inputPillar.description);
         predicate.equalTo("max_score", inputPillar.maxScore);
         predicate.equalTo("active", inputPillar.active);
