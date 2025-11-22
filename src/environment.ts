@@ -7,7 +7,8 @@ const schema = Joi.object({
     MYSQL_USERNAME: Joi.string().required(),
     MYSQL_PASSWORD: Joi.string().required(),
     MYSQL_DB_NAME: Joi.string().required(),
-    JWT_SECRET: Joi.string().required()
+    JWT_SECRET: Joi.string().required(),
+    LOG_ENVIRONMENT: Joi.string().default("CLOUD")
 }).unknown(true);
 
 const validation: ValidationResult = schema.validate(process.env);
@@ -23,7 +24,8 @@ export const environment: Environment = {
     MYSQL_USERNAME: validation.value.MYSQL_USERNAME,
     MYSQL_PASSWORD: validation.value.MYSQL_PASSWORD,
     MYSQL_DB_NAME: validation.value.MYSQL_DB_NAME,
-    JWT_SECRET: validation.value.JWT_SECRET
+    JWT_SECRET: validation.value.JWT_SECRET,
+    LOG_ENVIRONMENT: validation.value.LOG_ENVIRONMENT
 }
 
 export type Environment = {
@@ -33,5 +35,6 @@ export type Environment = {
     MYSQL_USERNAME: string,
     MYSQL_PASSWORD: string,
     MYSQL_DB_NAME: string,
-    JWT_SECRET: string
+    JWT_SECRET: string,
+    LOG_ENVIRONMENT: string
 }
