@@ -19,7 +19,7 @@ export const parseToken: RequestHandler = (req: Request, res: Response, next: Ne
     const token = req.cookies[AuthService.TOKEN_NAME];
 
     if (!token) {
-        throw new UnauthorizedError("Token not found");
+        return next(new UnauthorizedError("Token not found"));
     }
 
     try {
@@ -27,8 +27,8 @@ export const parseToken: RequestHandler = (req: Request, res: Response, next: Ne
         const validation: ValidationResult<JwtPayloadUser> = jwtPayloadSchema.validate(user);
 
         if (validation.error) {
-            // TODO log problems with token here
-            throw new UnauthorizedError("Invalid token");
+            ContextService.getLogger().error({error: validation.error.message}, "Encountered token that was malformed and correctly signed");
+            return next(new UnauthorizedError("Invalid token"));
         }
 
         const publicUser: PublicUser = {
@@ -39,11 +39,11 @@ export const parseToken: RequestHandler = (req: Request, res: Response, next: Ne
         };
 
         ContextService.setCallingUser(publicUser);
-        next();
+        return next();
     } catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {
-            throw new UnauthorizedError("Invalid token", { cause: error });
+            return next(new UnauthorizedError("Invalid token", { cause: error }));
         }
-        throw error;
+        return next(error);
     }
 }
