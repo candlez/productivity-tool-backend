@@ -37,12 +37,9 @@ export const parseToken: RequestHandler = (req: Request, res: Response, next: Ne
             lastName: validation.value.lastName,
             email: validation.value.email
         };
-        const ctx: RequestContext = {
-            user: publicUser
-        }
-        ContextService.runWithContext(ctx, async () => {
-            next();
-        });
+
+        ContextService.setCallingUser(publicUser);
+        next();
     } catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {
             throw new UnauthorizedError("Invalid token", { cause: error });
