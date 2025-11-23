@@ -1,5 +1,7 @@
 import { Router } from "express";
 import type { ValidationResult } from "joi";
+import Joi from "joi";
+import type { UUID } from "crypto";
 
 import { parseToken } from "../middleware/auth.mid.js";
 import { PillarRepository } from "../repositories/pillar.repo.js";
@@ -10,8 +12,6 @@ import { ContextService } from "../services/context.service.js";
 import { IDService } from "../services/id.service.js";
 import { inputPillarSchema } from "../joi/pillar.schema.js";
 import { JoiValidationError } from "../types/error.types.js";
-import Joi from "joi";
-import type { UUID } from "crypto";
 
 
 export const pillarRouter: Router = Router();
