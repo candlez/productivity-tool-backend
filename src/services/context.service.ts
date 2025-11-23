@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import { type Logger } from "pino";
 
 import type { RequestContext } from "../types/context.types.js";
 import type { PublicUser } from "../types/user.types.js";
@@ -16,18 +17,27 @@ export class ContextService {
     }
 
     public static getCallingUser(): PublicUser | undefined {
-        return this.requestContext.getStore()?.user;
+        return this.requestContext.getStore()!.user;
     }
 
     /**
      * for when you want to ensure there is a calling user
      */
     public static verifyCallingUser(): PublicUser {
-        const user: PublicUser | undefined = this.requestContext.getStore()?.user;
+        const user: PublicUser | undefined = this.requestContext.getStore()!.user;
         if (!user) {
             throw new UnauthorizedError("You must be authenticated to complete this action.");
         }
 
         return user;
     }
+
+    public static setCallingUser(user: PublicUser): void {
+        this.requestContext.getStore()!.user = user;
+    }
+
+    public static getLogger(): Logger {
+        return this.requestContext.getStore()!.logger;
+    }
+
 }
