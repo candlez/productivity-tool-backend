@@ -5,7 +5,6 @@ import type { InputPillar, Pillar } from "../types/pillar.types.js";
 import { UpdatePredicate, WherePredicate } from "../util/predicate.util.js";
 import type { IDService } from "./id.service.js";
 import { uuidToBuffer } from "../util/uuid.util.js";
-import { NotFoundError } from "../types/error.types.js";
 import { ContextService } from "./context.service.js";
 import type { PublicUser } from "../types/user.types.js";
 
