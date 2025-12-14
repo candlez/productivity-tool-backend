@@ -55,7 +55,7 @@ export class PillarRepository {
             if (error instanceof NotFoundError) {
                 throw error;
             }
-            ContextService.getLogger().error(error, `An error occurred getting a piller`);
+            ContextService.getLogger().error(error, `An error occurred getting a pillar`);
             throw error;
         } finally {
             if (connection) { connection.release(); }
