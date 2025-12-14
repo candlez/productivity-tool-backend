@@ -108,14 +108,15 @@ export class PillarRepository {
     }
 
 
-    public async deletePillar(pillarID: UUID): Promise<void> {
+    public async deletePillar(pillarID: UUID, userID: UUID): Promise<void> {
 
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
             const [result, fields]: [ResultSetHeader, FieldPacket[]] = await connection.execute(
                 `DELETE FROM pillars
-                 WHERE pillar_id = ?;`,
-                [uuidToBuffer(pillarID)]
+                 WHERE pillar_id = ?
+                 AND user_id = ?;`,
+                [uuidToBuffer(pillarID), uuidToBuffer(userID)]
             );
 
             if (result.affectedRows === 0) {

@@ -80,7 +80,8 @@ export class PillarService {
 
     public async deletePillar(pillarID: UUID): Promise<void> {
 
-        ContextService.getLogger().info(`Deleting pillar: ${pillarID}`)
-        await this.pillarRepository.deletePillar(pillarID);
+        const user: PublicUser = ContextService.verifyCallingUser(); 
+        ContextService.getLogger().info(`Deleting pillar: ${pillarID} for user: ${user.id}`);
+        await this.pillarRepository.deletePillar(pillarID, user.id);
     }
 }

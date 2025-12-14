@@ -24,6 +24,7 @@ export class ContextService {
      * for when you want to ensure there is a calling user
      */
     public static verifyCallingUser(): PublicUser {
+        // this method will eventually also be used to check permissions at the method level
         const user: PublicUser | undefined = this.requestContext.getStore()!.user;
         if (!user) {
             throw new UnauthorizedError("You must be authenticated to complete this action.");
