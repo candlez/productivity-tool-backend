@@ -56,7 +56,7 @@ authRouter.post("/login", async (req, res) => {
 
 
 // these routes need to be protected
-
+// adding this middleware here ensures that only the routes below require authentication
 authRouter.use(parseToken);
 
 /**
