@@ -7,6 +7,7 @@ import { toPillar, type Pillar } from "../types/pillar.types.js";
 import type { UpdatePredicate, WherePredicate } from "../util/predicate.util.js";
 import { uuidToBuffer } from "../util/uuid.util.js";
 import { NotFoundError } from "../types/error.types.js";
+import { ContextService } from "../services/context.service.js";
 
 
 /**
@@ -28,6 +29,7 @@ export class PillarRepository {
             
             return rows.map(toPillar);
         } catch (error) {
+            ContextService.getLogger().error(error, `An error occurred getting pillars`);
             throw error;
         } finally {
             if (connection) { connection.release(); }
@@ -50,6 +52,10 @@ export class PillarRepository {
             if (rows.length === 1 && rows[0] !== undefined) return toPillar(rows[0]);
             throw new Error(`Found more than one pillar with predicate: ${predicate}`);
         } catch (error) {
+            if (error instanceof NotFoundError) {
+                throw error;
+            }
+            ContextService.getLogger().error(error, `An error occurred getting a piller`);
             throw error;
         } finally {
             if (connection) { connection.release(); }
@@ -68,6 +74,7 @@ export class PillarRepository {
                     pillar.description, pillar.maxScore, pillar.active, pillar.createdAt]
             );
         } catch (error) {
+            ContextService.getLogger().error(error, `An error occurred inserting pillar [${pillar.id}]`);
             throw error;
         } finally {
             if (connection) { connection.release(); }
@@ -90,6 +97,10 @@ export class PillarRepository {
                 throw new NotFoundError(`Pillar not found [ID: ${pillarID}]`);             
             }
         } catch (error) {
+            if (error instanceof NotFoundError) {
+                throw error;
+            }
+            ContextService.getLogger().error(error, `An error occurred updating pillar [${pillarID}]`);
             throw error;
         } finally {
             if (connection) { connection.release(); }
@@ -111,6 +122,10 @@ export class PillarRepository {
                 throw new NotFoundError(`Pillar not found [ID: ${pillarID}]`);
             }
         } catch (error) {
+            if (error instanceof NotFoundError) {
+                throw error;
+            }
+            ContextService.getLogger().error(error, `An error occurred deleting pillar [${pillarID}]`);
             throw error;
         } finally {
             if (connection) { connection.release(); }
