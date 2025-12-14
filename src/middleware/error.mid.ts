@@ -3,16 +3,17 @@ import type { Request, Response, NextFunction, ErrorRequestHandler } from "expre
 import { sendError, sendErrors, sendOneError } from "../util/rest.util.js";
 import type { ApiErrorResponse } from "../types/rest.types.js";
 import { ForbiddenError, JoiValidationError, NotFoundError, UnauthorizedError, ValidationError } from "../types/error.types.js";
+import { ContextService } from "../services/context.service.js";
 
 
 export const finalHandler: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    console.log(err);
+    ContextService.getLogger().error(err, "An unexpected error has occurred")
 
     const formatted: ApiErrorResponse = {
         status: "error",
         error: {
             code: 500,
-            message: "An error occurred unexpectedly."
+            message: "An error occurred unexpectedly"
         }
     }
     return sendError(res, formatted, 500);
