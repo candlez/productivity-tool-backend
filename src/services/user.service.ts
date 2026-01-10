@@ -3,6 +3,7 @@ import type { UUID } from "crypto";
 import { UserRepository } from "../repositories/user.repo.js";
 import { type HashedUser, type PredicateUser, type User } from "../types/user.types.js";
 import type { IDService } from "./id.service.js";
+import { ContextService } from "./context.service.js";
 
 /** 
  * handles logic and functionality pertaining to Users
@@ -12,6 +13,7 @@ export class UserService {
 
     public async getAllUsers(): Promise<User[]> {
 
+        ContextService.getLogger().info(`Getting all users`);
         const users = await this.userRepository.getAllUsers();
         return users;
     }
@@ -29,6 +31,7 @@ export class UserService {
             passwordHash: hashedUser.passwordHash,
             createdAt: createdAt
         }
+        ContextService.getLogger().info(`Creating user: ${id} for email: ${hashedUser.email}`);
         await this.userRepository.insertUser(user);
         return user;
     }
@@ -48,24 +51,28 @@ export class UserService {
             email: hashedUser.email,
             passwordHash: hashedUser.passwordHash,
         }
+        ContextService.getLogger().info(`Updating user: ${id}`);
         await this.userRepository.updateUser(id, predicateUser);
     }
 
 
     public async getUserByEmail(email: string): Promise<User | null> {
 
+        ContextService.getLogger().info(`Getting user for email: ${email}`);
         return await this.userRepository.getUserByEmail(email);
     }
 
 
     public async getUserById(id: UUID): Promise<User | null> {
 
+        ContextService.getLogger().info(`Getting user: ${id}`);
         return await this.userRepository.getUserById(id);
     }
 
 
     public async deleteUser(id: UUID): Promise<void> {
 
+        ContextService.getLogger().info(`Deleting user: ${id}`);
         await this.userRepository.deleteUser(id);
     }
 }
