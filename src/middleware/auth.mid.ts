@@ -26,7 +26,7 @@ export const parseToken: RequestHandler = (req: Request, res: Response, next: Ne
         const validation: ValidationResult<JwtPayloadUser> = jwtPayloadSchema.validate(user);
 
         if (validation.error) {
-            ContextService.getLogger().error({error: validation.error.message}, "Encountered token that was malformed and correctly signed");
+            ContextService.getLogger().error(`Encountered token that failed JOI validition: ${validation.error.message}`);
             return next(new UnauthorizedError("Invalid token"));
         }
 
@@ -43,7 +43,6 @@ export const parseToken: RequestHandler = (req: Request, res: Response, next: Ne
         if (error instanceof jwt.JsonWebTokenError) {
             return next(new UnauthorizedError("Invalid token", { cause: error }));
         }
-        ContextService.getLogger().error(error, "Error occurred parsing JWT");
         return next(error);
     }
 }
