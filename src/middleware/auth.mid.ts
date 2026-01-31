@@ -8,7 +8,6 @@ import { jwtPayloadSchema } from "../joi/user.schema.js";
 import type { JwtPayloadUser, PublicUser } from "../types/user.types.js";
 import { UnauthorizedError } from "../types/error.types.js";
 import { ContextService } from "../services/context.service.js";
-import type { RequestContext } from "../types/context.types.js";
 
 
 /**
@@ -44,6 +43,7 @@ export const parseToken: RequestHandler = (req: Request, res: Response, next: Ne
         if (error instanceof jwt.JsonWebTokenError) {
             return next(new UnauthorizedError("Invalid token", { cause: error }));
         }
+        ContextService.getLogger().error(error, "Error occurred parsing JWT");
         return next(error);
     }
 }
