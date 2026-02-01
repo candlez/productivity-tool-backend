@@ -39,5 +39,6 @@ export const httpLogger: RequestHandler = pinoHttp({
             statusCode: res.statusCode,
             responseTime: res.responseTime,
         }),
+        err: () => undefined
     },
 });
