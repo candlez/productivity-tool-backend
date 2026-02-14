@@ -1,29 +1,35 @@
-import pino, { type Logger } from 'pino';
+import pino, { type Logger, type LoggerOptions } from 'pino';
 import { pinoHttp } from 'pino-http';
 import type { RequestHandler } from 'express';
 
 import { environment } from './environment.js';
 
-const localLogger: Logger = pino({
-    level: "debug",
-    transport: {
-        target: 'pino-pretty',
-        options: { colorize: true, translateTime: 'SYS:standard' },
-    }
-});
+let loggerConfig: LoggerOptions;
 
-const deploymentLogger: Logger = pino({
-    level: "info",
-    formatters: {
-        level: (label) => {
-            return {
-                level: label
-            }
+if (environment.LOG_ENVIRONMENT === "LOCAL") {
+    // local logger config
+    loggerConfig = {
+        level: "debug",
+        transport: {
+            target: 'pino-pretty',
+            options: { colorize: true, translateTime: 'SYS:standard' },
         }
-    },
-});
+    };
+} else {
+    // deployment logger config
+    loggerConfig = {
+        level: "info",
+        formatters: {
+            level: (label) => {
+                return {
+                    level: label
+                }
+            }
+        },
+    };
+}
 
-export const logger = environment.LOG_ENVIRONMENT === "LOCAL" ? localLogger : deploymentLogger;
+export const logger: Logger = pino(loggerConfig);
 
 export const httpLogger: RequestHandler = pinoHttp({
     logger,
