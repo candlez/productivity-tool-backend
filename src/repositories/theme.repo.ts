@@ -17,8 +17,6 @@ export class ThemeRepository {
             const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(`SELECT * FROM themes;`);
             
             return rows.map(toTheme);
-        } catch (error) {
-            throw error;
         } finally {
             if (connection) { connection.release(); }
         }

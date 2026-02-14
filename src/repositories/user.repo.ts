@@ -7,7 +7,6 @@ import { toUser, type PredicateUser, type User } from '../types/user.types.js';
 import { NotFoundError, ValidationError } from '../types/error.types.js';
 import { isMySQL2Error } from '../util/error.util.js';
 import { uuidToBuffer } from '../util/uuid.util.js';
-import { ContextService } from '../services/context.service.js';
 
 /**
  * handles database operations on the users table
@@ -23,9 +22,6 @@ export class UserRepository {
             const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(`SELECT * FROM users;`);
             
             return rows.map(toUser);
-        } catch (error) {
-            ContextService.getLogger().error(error, `An error occurred getting users`);
-            throw error;
         } finally {
             if (connection) { connection.release(); }
         }
@@ -49,9 +45,6 @@ export class UserRepository {
                 return toUser(rows[0]!);
             }
             throw new Error(`Found more than one user with email: ${email}`);
-        } catch (error) {
-            ContextService.getLogger().error(error, `An error occurred getting user [Email: ${email}]`);
-            throw error;
         } finally {
             if (connection) { connection.release(); }
         }
@@ -75,9 +68,6 @@ export class UserRepository {
                 return toUser(rows[0]!);
             }
             throw new Error(`Found more than one user with id: ${id}`);
-        } catch (error) {
-            ContextService.getLogger().error(error, `An error occurred getting user [${id}]`);
-            throw error;
         } finally {
             if (connection) { connection.release(); }
         }
@@ -98,10 +88,10 @@ export class UserRepository {
                 switch (error.errno) {
                     case 1062: // duplicate entry
                         throw new ValidationError("Email is already taken", { cause: error });
+                    default:
+                        throw error;
                 }
             }
-            ContextService.getLogger().error(error, `An error occurred inserting user [Email: ${user.email}]`);
-            throw error;
         } finally {
             if (connection) { connection.release(); }
         }
@@ -146,12 +136,6 @@ export class UserRepository {
             if (result.affectedRows === 0 && result.info.startsWith("Rows matched: 0")) {
                 throw new NotFoundError(`User not found [ID: ${id}]`);             
             }
-        } catch (error) {
-            if (error instanceof NotFoundError) {
-                throw error;
-            }
-            ContextService.getLogger().error(error, `An error occurred updating user [${id}]`);
-            throw error;
         } finally {
             if (connection) { connection.release(); }
         }
@@ -171,12 +155,6 @@ export class UserRepository {
             if (result.affectedRows === 0) {
                 throw new NotFoundError(`User not found [ID: ${id}]`);
             }
-        } catch (error) {
-            if (error instanceof NotFoundError) {
-                throw error;
-            }
-            ContextService.getLogger().error(error, `An error occurred deleting user [${id}]`);
-            throw error;
         } finally {
             if (connection) { connection.release(); }
         }
