@@ -5,6 +5,7 @@ import { toPublicUser, type HashedUser, type InputUser, type LoginUser, type Pub
 import { type UserService } from "./user.service.js";
 import { environment } from "../environment.js"; 
 import { UnauthorizedError } from "../types/error.types.js";
+import { ContextService } from "./context.service.js"; 
 
 /**
  * Service class for authentication functionality such as generating tokens
@@ -34,6 +35,7 @@ export class AuthService {
 
     public async signup(inputUser: InputUser): Promise<PublicUser> {
 
+        ContextService.getLogger().info(`User initiated signup with email: ${inputUser.email}`);
         const hashedUser: HashedUser = await this.hashUser(inputUser);
         const user: User = await this.userService.createUser(hashedUser);
         return toPublicUser(user);
