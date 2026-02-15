@@ -16,6 +16,10 @@ export class ContextService {
         return this.requestContext.run(context, fn);
     }
 
+    public static hasContext(): boolean {
+        return !!this.requestContext.getStore();
+    }
+
     public static getCallingUser(): PublicUser | undefined {
         return this.requestContext.getStore()!.user;
     }
