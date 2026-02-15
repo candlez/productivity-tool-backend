@@ -43,7 +43,7 @@ export class PillarRepository {
                 predicate.values
             );
 
-            if (rows.length === 0) throw new NotFoundError(`Pillar not found [Predicate: ${JSON.stringify(predicate)}]`);
+            if (rows.length === 0) throw new NotFoundError(`Pillar not found`);
             if (rows.length === 1 && rows[0] !== undefined) return toPillar(rows[0]);
             throw new Error(`Found more than one pillar with predicate: ${predicate}`);
         } finally {
