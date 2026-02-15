@@ -1,13 +1,23 @@
 import type { Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import type { Logger } from "pino";
 
 import { sendError, sendErrors, sendOneError } from "../util/rest.util.js";
 import type { ApiErrorResponse } from "../types/rest.types.js";
 import { ForbiddenError, JoiValidationError, NotFoundError, UnauthorizedError, ValidationError } from "../types/error.types.js";
 import { ContextService } from "../services/context.service.js";
+import { logger } from "../logger.js";
 
 
 export const finalHandler: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    ContextService.getLogger().error(err, "An unexpected error has occurred")
+    let log: Logger;
+
+    if (ContextService.hasContext()) {
+        log = ContextService.getLogger();
+    } else {
+        log = logger;
+    }
+
+    log.error(err, "An unexpected error has occurred");
 
     const formatted: ApiErrorResponse = {
         status: "error",
@@ -35,6 +45,9 @@ export const errorHandler: ErrorRequestHandler = (err: any, req: Request, res: R
     }
     if (err instanceof NotFoundError) {
         return sendOneError(res, err, 404);
+    }
+    if (err instanceof SyntaxError) {
+        return sendOneError(res, err, 400)
     }
 
     next(err);

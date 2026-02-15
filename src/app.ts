@@ -11,10 +11,10 @@ import { initializeContext } from './middleware/context.mid.js';
 
 export const app: Express = express();
 
-app.use(express.json());
-app.use(cookieParser());
 app.use(httpLogger);
 app.use(initializeContext);
+app.use(express.json());
+app.use(cookieParser());
 
 // health check
 app.get("/api", (req, res) => {
