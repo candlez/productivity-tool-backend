@@ -6,7 +6,8 @@ import { db } from "../db.js";
 import { toPillar, type Pillar } from "../types/pillar.types.js";
 import type { UpdatePredicate, WherePredicate } from "../util/predicate.util.js";
 import { uuidToBuffer } from "../util/uuid.util.js";
-import { NotFoundError } from "../types/error.types.js";
+import { NotFoundError, ValidationError } from "../types/error.types.js";
+import { isMySQL2Error } from '../util/error.util.js';
 
 /**
  * handles database operations on the pillars table
@@ -62,6 +63,14 @@ export class PillarRepository {
                 [uuidToBuffer(pillar.id), uuidToBuffer(pillar.userID), pillar.name, uuidToBuffer(pillar.themeID),
                     pillar.description, pillar.maxScore, pillar.active, pillar.createdAt]
             );
+        } catch (error) {
+            if (isMySQL2Error(error)) {
+                switch (error.errno) {
+                    case 1062: // duplicate entry
+                        throw new ValidationError("Email is already taken", { cause: error });                        
+                }
+            }
+            throw error;
         } finally {
             if (connection) { connection.release(); }
         }

@@ -87,11 +87,10 @@ export class UserRepository {
             if (isMySQL2Error(error)) {
                 switch (error.errno) {
                     case 1062: // duplicate entry
-                        throw new ValidationError("Email is already taken", { cause: error });
-                    default:
-                        throw error;
+                        throw new ValidationError("Email is already taken", { cause: error }); 
                 }
             }
+            throw error;
         } finally {
             if (connection) { connection.release(); }
         }
