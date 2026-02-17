@@ -11,6 +11,7 @@ An Express API for my Productivity Tool.
 5. ```MYSQL_PASSWORD```
 6. ```MYSQL_DB_NAME```
 7. ```JWT_SECRET```
+8. ```LOG_ENVIRONMENT```
 
 ## Node Version
 
