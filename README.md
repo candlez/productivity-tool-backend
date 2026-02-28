@@ -16,3 +16,7 @@ An Express API for my Productivity Tool.
 ## Node Version
 
 ```20.19.4```
+
+## Logging
+
+Productivity Tool uses Pino for logging.
