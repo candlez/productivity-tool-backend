@@ -20,3 +20,7 @@ An Express API for my Productivity Tool.
 ## Logging
 
 Productivity Tool uses Pino for logging.
+
+## Validation
+
+Productivity Tool uses Joi for validation.
