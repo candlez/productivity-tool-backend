@@ -15,7 +15,7 @@ export interface Habit {
 
 export type PublicHabit = Habit; // in the case that there is a need to distinguish, 
                                  // this type should be amended 
-                                 // and a "toPublicPillar" function should be created
+                                 // and a "toPublicHabit" function should be created
 
 export type InputHabit = Omit<Habit, "id" | "createdAt">;
 
