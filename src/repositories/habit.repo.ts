@@ -16,7 +16,7 @@ export class HabitRepository {
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
             const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(
-                `SELECT * FROM pillars
+                `SELECT * FROM habit
                  WHERE ${predicate.statements.join(" AND ")}`,
                 predicate.values
             );
