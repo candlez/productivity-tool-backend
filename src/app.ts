@@ -8,6 +8,7 @@ import { pillarRouter } from './routes/pillar.routes.js';
 import { errorHandler, finalHandler } from './middleware/error.mid.js';
 import { httpLogger } from './logger.js';
 import { initializeContext } from './middleware/context.mid.js';
+import { habitRouter } from './routes/habit.routes.js';
 
 export const app: Express = express();
 
@@ -25,6 +26,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/themes", themeRouter);
 app.use("/api/v1/pillars", pillarRouter);
+app.use("/api/v1/habits", habitRouter);
 
 app.use(errorHandler);
 app.use(finalHandler);
