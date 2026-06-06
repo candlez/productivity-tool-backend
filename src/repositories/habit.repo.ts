@@ -7,7 +7,7 @@ import type { WherePredicate } from "../util/predicate.util.js";
 import { toHabit, type Habit } from "../types/habit.types.js";
 import { uuidToBuffer } from "../util/uuid.util.js";
 import { isMySQL2Error } from "../util/error.util.js";
-import { ValidationError } from "../types/error.types.js";
+import { NotFoundError, ValidationError } from "../types/error.types.js";
 
 
 
@@ -25,6 +25,24 @@ export class HabitRepository {
             );
             
             return rows.map(toHabit);
+        } finally {
+            if (connection) { connection.release(); }
+        }
+    }
+
+    public async getOneHabit(predicate: WherePredicate) {
+
+        const connection: PoolConnection = await this.mysql.getConnection();
+        try {
+            const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await connection.execute<RowDataPacket[]>(
+                `SELECT * FROM habit
+                 WHERE ${predicate.statements.join(" AND ")}`,
+                predicate.values
+            );
+
+            if (rows.length === 0) throw new NotFoundError(`Habit not found`);
+            if (rows.length === 1 && rows[0] !== undefined) return toHabit(rows[0]);
+            throw new Error(`Found more than one habit with predicate: ${predicate}`);
         } finally {
             if (connection) { connection.release(); }
         }

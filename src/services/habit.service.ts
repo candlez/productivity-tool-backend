@@ -22,6 +22,17 @@ export class HabitService {
         return habits;
     }
 
+    public async getHabitByID(habitID: UUID): Promise<Habit> {
+
+        const user: PublicUser = ContextService.verifyCallingUser();
+        const predicate: WherePredicate = new WherePredicate();
+        predicate.equalTo("habit_id", uuidToBuffer(habitID));
+        predicate.equalTo("user_id", uuidToBuffer(user.id));
+
+        ContextService.getLogger().info(`Getting habit: ${habitID} for user: ${user.id}`);
+        return await this.habitRepository.getOneHabit(predicate);
+    }
+
     public async createHabit(inputHabit: InputHabit): Promise<Habit> {
 
         const id: UUID = this.idService.createUUID();
