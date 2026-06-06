@@ -7,4 +7,4 @@ export const inputPillarSchema = Joi.object<InputPillar>({
     description: Joi.string().required(),
     maxScore: Joi.number().required(),
     active: Joi.boolean().required(),
-}).unknown(false);
+}).required().unknown(false);

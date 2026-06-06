@@ -6,4 +6,4 @@ export const inputHabitSchema = Joi.object<InputHabit>({
     name: Joi.string().required(),
     description: Joi.string().required(),
     active: Joi.boolean().required()
-}).unknown(false);
+}).required().unknown(false);
