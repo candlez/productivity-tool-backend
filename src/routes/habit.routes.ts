@@ -6,8 +6,12 @@ import type { UUID } from "crypto";
 import { parseToken } from "../middleware/auth.mid.js";
 import { HabitRepository } from "../repositories/habit.repo.js";
 import { HabitService } from "../services/habit.service.js";
-import type { Habit, PublicHabit } from "../types/habit.types.js";
-import { sendArray } from "../util/rest.util.js";
+import type { Habit, InputHabit, PublicHabit } from "../types/habit.types.js";
+import { sendArray, sendCreated } from "../util/rest.util.js";
+import { inputHabitSchema } from "../joi/habit.schema.js";
+import { JoiValidationError } from "../types/error.types.js";
+import { ContextService } from "../services/context.service.js";
+import { IDService } from "../services/id.service.js";
 
 export const habitRouter: Router = Router();
 
@@ -15,7 +19,8 @@ habitRouter.use(parseToken);
 
 // manual dependency injection
 const habitRepository: HabitRepository = new HabitRepository();
-const habitService: HabitService = new HabitService(habitRepository);
+const idService = new IDService();
+const habitService: HabitService = new HabitService(habitRepository, idService);
 
 
 habitRouter.get("/", async (req, res) => {
@@ -26,7 +31,18 @@ habitRouter.get("/", async (req, res) => {
 
 
 habitRouter.post("/", async (req, res) => {
+    const validation: ValidationResult<InputHabit> = inputHabitSchema.validate(req.body);
 
+    if (validation.error) {
+        throw new JoiValidationError("Server encountered invalid data in the request body", validation.error.details);
+    }
+
+    // the Joi schema does not include the userID because that is provided by the token
+    validation.value.userID = ContextService.getCallingUser()!.id;
+
+    const habit: Habit = await habitService.createHabit(validation.value);
+    const publicHabit: PublicHabit = habit;
+    return sendCreated(res, publicHabit, publicHabit.id);
 });
 
 
