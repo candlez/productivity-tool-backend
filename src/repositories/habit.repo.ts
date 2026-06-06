@@ -36,7 +36,7 @@ export class HabitRepository {
         try {
             await connection.execute(
                 `INSERT INTO habit (habit_id, user_id, pillar_id, name, description, active, created_at)
-                 VALUES ();`,
+                 VALUES (?, ?, ?, ?, ?, ?, ?);`,
                 [uuidToBuffer(habit.id), uuidToBuffer(habit.userID), uuidToBuffer(habit.pillarID), habit.name, 
                     habit.description, habit.active, habit.createdAt]
             )
