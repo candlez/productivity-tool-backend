@@ -30,7 +30,7 @@ export class HabitRepository {
         }
     }
 
-    public async getOneHabit(predicate: WherePredicate) {
+    public async getOneHabit(predicate: WherePredicate): Promise<Habit> {
 
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
@@ -48,7 +48,7 @@ export class HabitRepository {
         }
     }
 
-    public async insertHabit(habit: Habit) {
+    public async insertHabit(habit: Habit): Promise<void> {
 
         const connection: PoolConnection = await this.mysql.getConnection();
         try {

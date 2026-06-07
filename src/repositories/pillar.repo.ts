@@ -15,7 +15,7 @@ import { isMySQL2Error } from '../util/error.util.js';
 export class PillarRepository {
     constructor(private mysql: Pool = db) {}
 
-    public async getPillars(predicate: WherePredicate) {
+    public async getPillars(predicate: WherePredicate): Promise<Pillar[]> {
         
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
@@ -33,7 +33,7 @@ export class PillarRepository {
     }
 
 
-    public async getOnePillar(predicate: WherePredicate) {
+    public async getOnePillar(predicate: WherePredicate): Promise<Pillar> {
         
         const connection: PoolConnection = await this.mysql.getConnection();
         try {
