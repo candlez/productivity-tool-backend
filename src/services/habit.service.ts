@@ -4,7 +4,7 @@ import type { HabitRepository } from "../repositories/habit.repo.js";
 import type { Habit, InputHabit } from "../types/habit.types.js";
 import type { PublicUser } from "../types/user.types.js";
 import { ContextService } from "./context.service.js";
-import { WherePredicate } from "../util/predicate.util.js";
+import { UpdatePredicate, WherePredicate } from "../util/predicate.util.js";
 import { uuidToBuffer } from "../util/uuid.util.js";
 import type { IDService } from "./id.service.js";
 
@@ -50,5 +50,32 @@ export class HabitService {
         ContextService.getLogger().info(`Creating habit: ${id} for user: ${inputHabit.userID}`);
         await this.habitRepository.insertHabit(habit);
         return habit;
+    }
+
+
+    public async updateHabit(habitID: UUID, inputHabit: InputHabit): Promise<Habit> {
+
+        const predicate = new UpdatePredicate();
+        predicate.equalTo("user_id", uuidToBuffer(inputHabit.userID));
+        predicate.equalTo("pillar_id", uuidToBuffer(inputHabit.pillarID))
+        predicate.equalTo("name", inputHabit.name);
+        predicate.equalTo("description", inputHabit.description);
+        predicate.equalTo("active", inputHabit.active);
+
+        ContextService.getLogger().info(`Updating habit: ${habitID} for user: ${inputHabit.userID}`);
+        await this.habitRepository.updateHabit(habitID, predicate);
+
+        ContextService.getLogger().info(`Getting updated habit: ${habitID} for user: ${inputHabit.userID}`);
+        const habit: Habit = await this.getHabitByID(habitID);
+
+        return habit;
+    }
+
+
+    public async deleteHabit(habitID: UUID): Promise<void> {
+
+        const user: PublicUser = ContextService.verifyCallingUser(); 
+        ContextService.getLogger().info(`Deleting habit: ${habitID} for user: ${user.id}`);
+        await this.habitRepository.deleteHabit(habitID, user.id);
     }
 }

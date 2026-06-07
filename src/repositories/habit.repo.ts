@@ -1,9 +1,9 @@
-import type { FieldPacket, Pool, PoolConnection, RowDataPacket } from "mysql2/promise";
+import type { FieldPacket, Pool, PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import type { UUID } from "crypto";
 
 import { db } from "../db.js";
 
-import type { WherePredicate } from "../util/predicate.util.js";
+import type { UpdatePredicate, WherePredicate } from "../util/predicate.util.js";
 import { toHabit, type Habit } from "../types/habit.types.js";
 import { uuidToBuffer } from "../util/uuid.util.js";
 import { isMySQL2Error } from "../util/error.util.js";
@@ -66,6 +66,46 @@ export class HabitRepository {
                 }
             }
             throw error;
+        } finally {
+            if (connection) { connection.release(); }
+        }
+    }
+
+
+    public async updateHabit(habitID: UUID, predicate: UpdatePredicate): Promise<void> {
+
+        const connection: PoolConnection = await this.mysql.getConnection();
+        try {
+            const [result, fields]: [ResultSetHeader, FieldPacket[]] = await connection.execute(
+                `UPDATE habit
+                 SET ${predicate.statements.join(", ")}
+                 WHERE habit_id = ?;`,
+                [...predicate.values, uuidToBuffer(habitID)]
+            );
+
+            if (result.affectedRows === 0 && result.info.startsWith("Rows matched: 0")) {
+                throw new NotFoundError(`Habit not found [ID: ${habitID}]`);             
+            }
+        } finally {
+            if (connection) { connection.release(); }
+        }
+    }
+
+
+    public async deleteHabit(habitID: UUID, userID: UUID): Promise<void> {
+
+        const connection: PoolConnection = await this.mysql.getConnection();
+        try {
+            const [result, fields]: [ResultSetHeader, FieldPacket[]] = await connection.execute(
+                `DELETE FROM habit
+                 WHERE habit_id = ?
+                 AND user_id = ?;`,
+                [uuidToBuffer(habitID), uuidToBuffer(userID)]
+            );
+
+            if (result.affectedRows === 0) {
+                throw new NotFoundError(`Habit not found [ID: ${habitID}]`);
+            }
         } finally {
             if (connection) { connection.release(); }
         }

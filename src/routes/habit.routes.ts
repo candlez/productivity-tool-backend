@@ -7,7 +7,7 @@ import { parseToken } from "../middleware/auth.mid.js";
 import { HabitRepository } from "../repositories/habit.repo.js";
 import { HabitService } from "../services/habit.service.js";
 import type { Habit, InputHabit, PublicHabit } from "../types/habit.types.js";
-import { sendArray, sendCreated, sendOneItem } from "../util/rest.util.js";
+import { sendArray, sendCreated, sendDeleted, sendOneItem } from "../util/rest.util.js";
 import { inputHabitSchema } from "../joi/habit.schema.js";
 import { JoiValidationError } from "../types/error.types.js";
 import { ContextService } from "../services/context.service.js";
@@ -65,10 +65,32 @@ habitRouter.get("/:habitID", async (req, res) => {
 
 
 habitRouter.put("/:habitID", async (req, res) => {
+    const paramValidation: ValidationResult<{ habitID: UUID }> = pathParamSchema.validate(req.params);
 
+    if (paramValidation.error) {
+        throw new JoiValidationError("Server encountered invalid data in the request parameters", paramValidation.error.details);
+    }
+
+    const bodyValidation: ValidationResult<InputHabit> = inputHabitSchema.validate(req.body);
+
+    if (bodyValidation.error) {
+        throw new JoiValidationError("Server encountered invalid data in the request body", bodyValidation.error.details);
+    }
+
+    bodyValidation.value.userID = ContextService.verifyCallingUser().id;
+    const updatedHabit: Habit = await habitService.updateHabit(paramValidation.value.habitID, bodyValidation.value);
+    const publicHabit: PublicHabit = updatedHabit;
+    return sendOneItem(res, publicHabit, publicHabit.id);
 });
 
 
 habitRouter.delete("/:habitID", async (req, res) => {
+    const validation: ValidationResult<{ habitID: UUID }> = pathParamSchema.validate(req.params);
 
+    if (validation.error) {
+        throw new JoiValidationError("Server encountered invalid data in the request parameters", validation.error.details);
+    }
+
+    await habitService.deleteHabit(validation.value.habitID);
+    return sendDeleted(res);
 });
