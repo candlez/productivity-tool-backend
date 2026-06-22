@@ -7,7 +7,7 @@ export interface HabitEntry {
     id: UUID,
     habitID: UUID,
     userID: UUID,
-    entryDate: Date,
+    entryDate: string,
     value: boolean
 }
 
@@ -15,6 +15,8 @@ export interface HabitEntry {
 // this type should be amended 
 // and a "toPublicHabitEntry" function should be created
 export type PublicHabitEntry = HabitEntry;
+
+export type InputHabitEntry = Omit<HabitEntry, "id">;
 
 export const toHabitEntry = (dbHabitEntry: RowDataPacket): HabitEntry => {
     return {
