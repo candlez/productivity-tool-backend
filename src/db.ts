@@ -10,5 +10,13 @@ export const db: Pool = mysql.createPool({
     database: environment.MYSQL_DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    // this was necessary to prevent mysql2 from automatically casting DATE
+    // columns as js dates
+    typeCast(field, next) {
+        if (field.type === "DATE") {
+            return field.string();
+        }
+        return next();
+    }
 });

@@ -7,12 +7,12 @@ export const inputUserSchema = Joi.object<InputUser>({
     lastName: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
-}).unknown(false);
+}).required().unknown(false);
 
 export const loginUserSchema = Joi.object<LoginUser>({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-}).unknown(false);
+}).required().unknown(false);
 
 export const jwtPayloadSchema = Joi.object<JwtPayloadUser>({
     firstName: Joi.string().required(),
@@ -21,4 +21,4 @@ export const jwtPayloadSchema = Joi.object<JwtPayloadUser>({
     id: Joi.string().uuid().required(),
     iat: Joi.number(),
     exp: Joi.number()
-}).unknown(false);
+}).required().unknown(false);

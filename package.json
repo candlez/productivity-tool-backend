@@ -8,11 +8,13 @@
     "test": "echo \"Error: no test specified\" && exit 0",
     "serve": "nodemon src/index.ts",
     "build": "tsc",
-    "start": "node -r dotenv/config dist/index.js"
+    "start": "node --enable-source-maps -r dotenv/config dist/index.js",
+    "debug": "node --inspect --enable-source-maps -r dotenv/config dist/index.js"
   },
   "author": "Thomas McNamara",
   "license": "ISC",
   "dependencies": {
+    "@joi/date": "^2.1.1",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",

@@ -11,7 +11,7 @@ import type { PublicUser } from "../types/user.types.js";
 
 
 export class PillarService {
-    constructor(private pillarRepository: PillarRepository, private idServices: IDService) {}
+    constructor(private pillarRepository: PillarRepository, private idService: IDService) {}
 
     public async getPillars(): Promise<Pillar[]> {
         
@@ -38,7 +38,7 @@ export class PillarService {
 
     public async createPillar(inputPillar: InputPillar): Promise<Pillar> {
 
-        const id: UUID = this.idServices.createUUID();
+        const id: UUID = this.idService.createUUID();
         const createdAt: Date = new Date();
         const pillar: Pillar = {
             id: id,
