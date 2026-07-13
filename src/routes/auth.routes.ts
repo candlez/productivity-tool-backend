@@ -52,6 +52,12 @@ authRouter.post("/login", async (req, res) => {
     return sendOneItem<PublicUser>(res, user, user.id)
 });
 
+authRouter.post("/logout", async (req, res) => {
+    res.cookie(AuthService.TOKEN_NAME, "", { httpOnly: true, maxAge: 1 });
+
+    return sendDeleted(res);
+});
+
 // TODO eventually, there needs to be a way to reset your password
 
 
